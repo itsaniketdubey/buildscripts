@@ -16,6 +16,8 @@ ARCH="arm64"
 SUBARCH="arm64"
 LINKER="lld"
 KERNELNAME="Delta"
+CHATID=-"1001367259540"
+BOTID="1143909985:AAETJx6Mf-grKQxQ7UMFxC5AjzFt0JEOVhw"
 # Choose default linker if none is specified
 if [ ${LINKER} == "" ]
 then
@@ -34,8 +36,8 @@ echo "
     
 #Build
 cd ${KERNELDIR}
-curl -s -X POST https://api.telegram.org/bot1143909985:AAETJx6Mf-grKQxQ7UMFxC5AjzFt0JEOVhw/sendMessage -d text="$KERNELNAME kernel: Build started
-Latest Commit: <code>$(git log --pretty=format:'%h : %s' -1)</code>" -d chat_id=-1001367259540 -d parse_mode=HTML
+curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel for ${DEVICE}: Build started
+Latest Commit: <code>$(git log --pretty=format:'%h : %s' -1)</code>" -d chat_id=${CHATID} -d parse_mode=HTML
 
 cd ${CCDIR}
 export CROSS_COMPILE=$(pwd)/bin/aarch64-linux-gnu-
@@ -63,15 +65,15 @@ else
         if [ $? -ne 0 ]
         then
             echo "Build failed"
-            curl -s -X POST https://api.telegram.org/bot1143909985:AAETJx6Mf-grKQxQ7UMFxC5AjzFt0JEOVhw/sendMessage -d text="$KERNELNAME kernel: Build throwing errors" -d chat_id=-1001367259540 -d parse_mode=HTML
+            curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build throwing errors" -d chat_id=${CHATID} -d parse_mode=HTML
         else 
             echo "Build succesful"
             mv ${KERNELDIR}/out/arch/arm64/boot/Image.gz-dtb ${ANYKERNELDIR}/
             cd ${ANYKERNELDIR}
-            zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel *
+            zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE} *
             
-            curl -s -X POST https://api.telegram.org/bot1143909985:AAETJx6Mf-grKQxQ7UMFxC5AjzFt0JEOVhw/sendMessage -d text="$KERNELNAME kernel: Build succesful" -d chat_id=-1001367259540 -d parse_mode=HTML
-            curl -F chat_id="-1001367259540" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel.zip" https://api.telegram.org/bot"1143909985:AAETJx6Mf-grKQxQ7UMFxC5AjzFt0JEOVhw"/sendDocument
+            curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build succesful" -d chat_id="${CHATID}" -d parse_mode=HTML
+            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel.zip" https://api.telegram.org/bot${BOTID}/sendDocument
         fi
     fi
 fi
