@@ -18,6 +18,9 @@ LINKER="lld"
 KERNELNAME="Delta"
 CHATID=-"1001367259540"
 BOTID="1143909985:AAETJx6Mf-grKQxQ7UMFxC5AjzFt0JEOVhw"
+VERSION=2.0_Test
+BUILD=$(cat buildno.txt)
+WDIR=$(pwd)
 # Choose default linker if none is specified
 if [ ${LINKER} == "" ]
 then
@@ -31,9 +34,12 @@ echo "
     The cross compiler directory is $CCDIR
     The clang directory is $CLANGDIR
     The linker chosen is ${LINKER}
-
     "
     
+# Version
+BUILD=$(($BUILD + 1))
+echo $BUILD | tee buildno.txt
+
 #Build
 cd ${KERNELDIR}
 curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel for ${DEVICE}: Build started
@@ -70,10 +76,11 @@ else
             echo "Build succesful"
             mv ${KERNELDIR}/out/arch/arm64/boot/Image.gz-dtb ${ANYKERNELDIR}/
             cd ${ANYKERNELDIR}
-            zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE} *
+            zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip *
             
             curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build succesful" -d chat_id="${CHATID}" -d parse_mode=HTML
-            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}.zip" https://api.telegram.org/bot${BOTID}/sendDocument
+            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip" https://api.telegram.org/bot${BOTID}/sendDocument
+            rm ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip
         fi
     fi
 fi
