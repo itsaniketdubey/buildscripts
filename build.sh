@@ -73,7 +73,7 @@ else
             zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE} *
             
             curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build succesful" -d chat_id="${CHATID}" -d parse_mode=HTML
-            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel.zip" https://api.telegram.org/bot${BOTID}/sendDocument
+            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}.zip" https://api.telegram.org/bot${BOTID}/sendDocument
         fi
     fi
 fi
