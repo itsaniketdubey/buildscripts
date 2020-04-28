@@ -29,21 +29,21 @@ fi
 
 # Messages
 echo "    
+    You are at $WDIR
     Building $KERNELNAME kernel for $DEVICE
     The source directory is $KERNELDIR
     The cross compiler directory is $CCDIR
     The clang directory is $CLANGDIR
     The linker chosen is ${LINKER}
     "
-    
-# Version
-BUILD=$(($BUILD + 1))
-echo $BUILD | tee buildno.txt
 
 #Build
+cd ${WDIR}
+NEWBUILD=$(($BUILD + 1))
+echo ${NEWBUILD} >> buildno.txt
+
 cd ${KERNELDIR}
-curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel for ${DEVICE}: Build started
-Latest Commit: <code>$(git log --pretty=format:'%h : %s' -1)</code>" -d chat_id=${CHATID} -d parse_mode=HTML
+curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel for ${DEVICE}: Build ${NEWBUILD} started at HEAD: <code>$(git log --pretty=format:'%h : %s' -1)</code>" -d chat_id=${CHATID} -d parse_mode=HTML
 
 cd ${CCDIR}
 export CROSS_COMPILE=$(pwd)/bin/aarch64-linux-gnu-
@@ -52,7 +52,7 @@ export CROSS_COMPILE_ARM32=$(pwd)/bin/arm-linux-gnueabi-
 cd $KERNELDIR
 export ARCH=${ARCH} && export SUBARCH=${SUBARCH}
 make O=out ARCH=$ARCH ${DEVICE}_defconfig
-if [ $? -ne 0 ]
+#if [ $? -ne 0 ]
 then
     echo "  Couldn't make ${DEVICE}_defconfig"
 else
@@ -72,15 +72,20 @@ else
         then
             echo "Build failed"
             curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build throwing errors" -d chat_id=${CHATID} -d parse_mode=HTML
+            cd ${WDIR}
+            NEWBUILD=$(($BUILD - 1))
+            echo $NEWBUILD &> tee buildno.txt
         else 
             echo "Build succesful"
             mv ${KERNELDIR}/out/arch/arm64/boot/Image.gz-dtb ${ANYKERNELDIR}/
             cd ${ANYKERNELDIR}
-            zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip *
+            echo ${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_T${NEWBUILD} &> version
+            zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${NEWBUILD}.zip *
             
             curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build succesful" -d chat_id="${CHATID}" -d parse_mode=HTML
-            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip" https://api.telegram.org/bot${BOTID}/sendDocument
-            rm ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip
+            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${NEWBUILD}.zip" https://api.telegram.org/bot${BOTID}/sendDocument
+            rm ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${NEWBUILD}.zip
+            
         fi
     fi
 fi
