@@ -52,7 +52,7 @@ export CROSS_COMPILE_ARM32=$(pwd)/bin/arm-linux-gnueabi-
 cd $KERNELDIR
 export ARCH=${ARCH} && export SUBARCH=${SUBARCH}
 make O=out ARCH=$ARCH ${DEVICE}_defconfig
-#if [ $? -ne 0 ]
+if [ $? -ne 0 ]
 then
     echo "  Couldn't make ${DEVICE}_defconfig"
 else
