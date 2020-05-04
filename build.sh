@@ -2,7 +2,7 @@
 
 Build_failiure () {
 echo "Build failed"
-#curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build throwing errors" -d chat_id=${CHATID} -d parse_mode=HTML
+curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build throwing errors" -d chat_id=${CHATID} -d parse_mode=HTML
 cd ${WDIR}
 BUILD=$(($BUILD - 1))
 echo $BUILD > tee buildno.txt
@@ -17,11 +17,11 @@ ANYKERNELDIR="/home/madeofgreat/Development/AnyKernel3"
 DEVICE="beryllium"
 ARCH="arm64"
 SUBARCH="arm64"
-LINKER=""
-KERNELNAME="micode"
-CHATID=-"ded chat"
-BOTID="no"
-VERSION="no"
+LINKER="lld"
+KERNELNAME="Delta"
+CHATID=-"1001367259540"
+BOTID="not today"
+VERSION="2.0_Test"
 BUILD=$(cat buildno.txt)
 WDIR=$(pwd)
 
@@ -42,7 +42,7 @@ echo ${BUILD} > buildno.txt
 
 # Building starts here
 cd ${KERNELDIR}
-#curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel for ${DEVICE}: Build ${BUILD} started at HEAD: <code>$(git log --pretty=format:'%h : %s' -1)</code>" -d chat_id=${CHATID} -d parse_mode=HTML
+curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel for ${DEVICE}: Build ${BUILD} started at HEAD: <code>$(git log --pretty=format:'%h : %s' -1)</code>" -d chat_id=${CHATID} -d parse_mode=HTML
 make O=out ARCH=$ARCH ${DEVICE}_defconfig
 if [ $? -ne 0 ]
 then
@@ -78,11 +78,11 @@ else
             zip -r ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip *
         
             # Telegram post
-            #curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build succesful" -d chat_id="${CHATID}" -d parse_mode=HTML
-            #curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip" https://api.telegram.org/bot${BOTID}/sendDocument
+            curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build succesful" -d chat_id="${CHATID}" -d parse_mode=HTML
+            curl -F chat_id="${CHATID}" -F document=@"${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip" https://api.telegram.org/bot${BOTID}/sendDocument
             
             # Removing uploaded file
-            #rm ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip
+            rm ${ANYKERNELDIR}/${KERNELNAME}_Kernel_${DEVICE}_${VERSION}_${BUILD}.zip
         fi
     fi
 fi
