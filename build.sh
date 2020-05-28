@@ -3,14 +3,11 @@
 Build_failiure () {
 echo "Build failed"
 curl -s -X POST https://api.telegram.org/bot${BOTID}/sendMessage -d text="$KERNELNAME kernel: Build throwing errors" -d chat_id=${CHATID} -d parse_mode=HTML
-cd ${WDIR}
-BUILD=$(($BUILD - 1))
-echo $BUILD > tee buildno.txt
 }
 
 
 #Variables 
-KERNELDIR="/home/madeofgreat/Development/delta_beryllium"
+KERNELDIR="/home/madeofgreat/development/delta_beryllium"
 COMPILERDIR="/home/madeofgreat/toolchains/proton-clang"
 LOGDIR="/home/madeofgreat/logs"
 ANYKERNELDIR="/home/madeofgreat/Development/AnyKernel3"
@@ -21,7 +18,7 @@ LINKER="lld"
 KERNELNAME="Delta"
 CHATID=-"1001367259540"
 BOTID="not today"
-VERSION="2.0_Test"
+VERSION="2.1.1_Test"
 BUILD=$(cat buildno.txt)
 WDIR=$(pwd)
 
