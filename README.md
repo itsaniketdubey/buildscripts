@@ -1,2 +1,2 @@
 # buildscripts
-Go away
+shell script to make kernels
